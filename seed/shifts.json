@@ -1,0 +1,32 @@
+[
+  {
+    "id": "S1001",
+    "unit": "ICU",
+    "role": "RN",
+    "date": "2026-11-01",
+    "start": "19:00",
+    "end": "07:00",
+    "incentive": "a fifteen dollar per hour critical-need bonus",
+    "notes": "Night shift, 1:2 patient ratio"
+  },
+  {
+    "id": "S1002",
+    "unit": "Med-Surg",
+    "role": "RN",
+    "date": "2026-11-02",
+    "start": "07:00",
+    "end": "19:00",
+    "incentive": null,
+    "notes": "Day shift"
+  },
+  {
+    "id": "S1003",
+    "unit": "Emergency",
+    "role": "RN",
+    "date": "2026-11-03",
+    "start": "11:00",
+    "end": "23:00",
+    "incentive": "a ten dollar per hour bonus",
+    "notes": "Mid shift"
+  }
+]

@@ -1,0 +1,283 @@
+[
+  {
+    "name": "url",
+    "group": "Connection",
+    "type": "readonly",
+    "default": "(required)",
+    "description": "Your WebSocket server. Must start with wss://. Twilio connects here when the call reaches <Connect>.",
+    "consider": "Built from SERVER_URL in routes/voice.js. If the tunnel URL changes and .env isn't updated, the greeting may play but the conversation never starts.",
+    "sim": true
+  },
+  {
+    "name": "welcomeGreeting",
+    "group": "Connection",
+    "type": "readonly",
+    "default": "(none)",
+    "description": "Text Twilio speaks the moment the session starts. Your LLM isn't involved, so the first sentence has no added latency.",
+    "consider": "Set per call in routes/voice.js (it includes the nurse's name). Always add it to the LLM history, or the model will greet a second time.",
+    "sim": true
+  },
+  {
+    "name": "welcomeGreetingInterruptible",
+    "group": "Connection",
+    "type": "enum",
+    "values": ["any", "speech", "dtmf", "none"],
+    "default": "any",
+    "description": "Whether the caller can talk over (or press keys during) the welcome greeting.",
+    "consider": "Use 'none' if the greeting contains a required disclosure, such as 'this call may be recorded' or 'I am an automated assistant'.",
+    "sim": true
+  },
+  {
+    "name": "applicationReconnect",
+    "group": "Connection",
+    "type": "bool",
+    "default": "false",
+    "description": "If your WebSocket drops, Twilio buffers events and reconnects instead of failing the call. Setup then carries connectionType=reconnect and reconnectAttempt.",
+    "consider": "This app does NOT handle reconnects yet. A reconnect would start a fresh session with no history. Exercise: key sessions by callSid so they survive.",
+    "appCode": true
+  },
+  {
+    "name": "language",
+    "group": "Language",
+    "type": "text",
+    "default": "en-US",
+    "description": "Sets both the TTS and STT language.",
+    "consider": "Switch mid-call by sending a {type:'language'} message. For several languages, add <Language> child elements, or use code='multi' (requires ElevenLabs + Deepgram).",
+    "placeholder": "en-US"
+  },
+  {
+    "name": "ttsLanguage",
+    "group": "Language",
+    "type": "text",
+    "default": "(inherits language)",
+    "description": "TTS language when a text token has no 'lang'. Overrides language for speech output only.",
+    "consider": "Useful when you understand several languages but always reply in one.",
+    "placeholder": "es-US"
+  },
+  {
+    "name": "transcriptionLanguage",
+    "group": "Language",
+    "type": "text",
+    "default": "(inherits language)",
+    "description": "STT language. Overrides language for recognition only.",
+    "consider": "Set it to match your callers. A wrong language makes accurate transcripts look like gibberish.",
+    "placeholder": "es-US"
+  },
+  {
+    "name": "ttsProvider",
+    "group": "Text-to-speech",
+    "type": "enum",
+    "values": ["ElevenLabs", "Google", "Amazon"],
+    "default": "ElevenLabs",
+    "description": "Which engine speaks your text.",
+    "consider": "Changing the provider without changing voice to a voice from that provider is an invalid combination. The WebSocket never connects and you get error 64101 at the action URL."
+  },
+  {
+    "name": "voice",
+    "group": "Text-to-speech",
+    "type": "text",
+    "default": "Provider default",
+    "description": "Provider voice ID. Defaults: ElevenLabs UgBBYS2sOqTuMpoF3BR0, Google en-US-Chirp3-HD-Aoede, Amazon Joanna-Neural.",
+    "consider": "ElevenLabs format: VOICE_ID-MODEL-SPEED_STABILITY_SIMILARITY. Twilio recommends the v4 model (append -v4). v3 and v4 don't support speed, so omit it or use 1.0.",
+    "placeholder": "UgBBYS2sOqTuMpoF3BR0-v4"
+  },
+  {
+    "name": "elevenlabsTextNormalization",
+    "group": "Text-to-speech",
+    "type": "enum",
+    "values": ["off", "on", "auto"],
+    "default": "off",
+    "description": "Has ElevenLabs expand numbers, times, currency and abbreviations before speaking. 'auto' behaves like 'off'.",
+    "consider": "Turn this on when the model outputs '7 PM' or '$15'. The alternative is telling the model to spell everything out, which costs prompt tokens and is unreliable."
+  },
+  {
+    "name": "transcriptionProvider",
+    "group": "Speech-to-text",
+    "type": "enum",
+    "values": ["Deepgram", "Google"],
+    "default": "Deepgram",
+    "description": "Which engine transcribes the caller. Deepgram is the default for accounts created after Sept 12, 2025.",
+    "consider": "Change provider and speechModel together. Not every model exists on both."
+  },
+  {
+    "name": "speechModel",
+    "group": "Speech-to-text",
+    "type": "text",
+    "default": "Google: telephony / Deepgram: nova-3-general",
+    "description": "The STT model for the chosen provider.",
+    "consider": "Deepgram Flux models add model-based end-of-turn detection (see eotThreshold). Check the docs for the current model list.",
+    "placeholder": "nova-3-general"
+  },
+  {
+    "name": "speechTimeout",
+    "group": "Speech-to-text",
+    "type": "number",
+    "min": 600,
+    "max": 5000,
+    "default": "auto",
+    "description": "Milliseconds of silence before Twilio decides the caller has finished and sends 'prompt'. With Deepgram Flux, this is the maximum silence before the turn is forced to end.",
+    "consider": "Lower values feel snappier but cut off people who pause mid-sentence ('I could… maybe do Sunday'). Nurses checking a calendar pause, so don't go too low.",
+    "placeholder": "auto"
+  },
+  {
+    "name": "eotThreshold",
+    "group": "Speech-to-text",
+    "type": "number",
+    "min": 0.5,
+    "max": 0.9,
+    "step": 0.05,
+    "default": "0.8",
+    "description": "End-of-turn confidence threshold. Only applies to Deepgram + Flux.",
+    "consider": "Lower ends turns sooner (faster, more cut-offs). Higher waits for more certainty.",
+    "placeholder": "0.8"
+  },
+  {
+    "name": "hints",
+    "group": "Speech-to-text",
+    "type": "text",
+    "default": "(computed per shift)",
+    "description": "Comma-separated words and phrases the recognizer should expect.",
+    "consider": "Use for domain vocabulary: unit names (Med-Surg, Step-Down), names, product names. Here it's computed per shift unless you override it.",
+    "placeholder": "ICU,Med-Surg,Step-Down"
+  },
+  {
+    "name": "partialPrompts",
+    "group": "Speech-to-text",
+    "type": "bool",
+    "default": "false",
+    "description": "Stream interim transcripts while the caller is still talking (prompt messages with last:false).",
+    "consider": "For advanced latency tricks such as speculative LLM calls. This app ignores last:false prompts. Without that guard, every partial would trigger a model reply.",
+    "sim": true,
+    "appCode": true
+  },
+  {
+    "name": "partialPromptOnHangup",
+    "group": "Speech-to-text",
+    "type": "bool",
+    "default": "true",
+    "description": "If the caller hangs up mid-sentence, send what was transcribed so far.",
+    "consider": "Useful for logging last words ('actually yes, I'll ta—')."
+  },
+  {
+    "name": "deepgramSmartFormat",
+    "group": "Speech-to-text",
+    "type": "bool",
+    "default": "true",
+    "description": "Deepgram formats numbers, dates and punctuation in transcripts.",
+    "consider": "Keep it on for readable transcripts. Turn it off if you parse raw digits yourself."
+  },
+  {
+    "name": "profanityFilter",
+    "group": "Speech-to-text",
+    "type": "bool",
+    "default": "true",
+    "description": "Masks profanity in transcripts (all but the first letter).",
+    "consider": "Some teams turn it off so they can detect upset callers and escalate."
+  },
+  {
+    "name": "interruptible",
+    "group": "Turn-taking & interruption",
+    "type": "enum",
+    "values": ["any", "speech", "dtmf", "none"],
+    "default": "any",
+    "description": "Which caller input stops the agent mid-sentence (barge-in). Twilio stops audio and sends you 'interrupt'.",
+    "consider": "'any' feels most human. Use 'none' for things that must be heard in full (legal disclosures). The text message also has a per-reply 'interruptible' flag for that.",
+    "sim": true
+  },
+  {
+    "name": "interruptSensitivity",
+    "group": "Turn-taking & interruption",
+    "type": "enum",
+    "values": ["high", "medium", "low"],
+    "default": "high",
+    "description": "How easily caller sound counts as an interruption.",
+    "consider": "Lower it for noisy environments, such as nurses calling from a busy unit or a car."
+  },
+  {
+    "name": "ignoreBackchannel",
+    "group": "Turn-taking & interruption",
+    "type": "bool",
+    "default": "false",
+    "description": "Don't treat short acknowledgements ('mm-hm', 'yeah', 'okay') as interruptions.",
+    "consider": "Usually worth turning on. People say 'mm-hm' while listening to details."
+  },
+  {
+    "name": "reportInputDuringAgentSpeech",
+    "group": "Turn-taking & interruption",
+    "type": "enum",
+    "values": ["none", "speech", "dtmf", "any"],
+    "default": "none",
+    "description": "Whether you receive caller input that arrives while the agent is talking. This is separate from whether it interrupts.",
+    "consider": "Combine with interruptible='none' to hear the caller during a disclosure without stopping it. Default was 'any' before May 2025.",
+    "sim": true
+  },
+  {
+    "name": "dtmfDetection",
+    "group": "Turn-taking & interruption",
+    "type": "bool",
+    "default": "false",
+    "description": "Send keypresses to your app as {type:'dtmf'} messages.",
+    "consider": "A good fallback for yes/no in loud places ('press 1 to accept').",
+    "sim": true
+  },
+  {
+    "name": "echoPromptFiltering",
+    "group": "Turn-taking & interruption",
+    "type": "bool",
+    "default": "false",
+    "description": "Helps drop transcripts that are just the agent's own voice echoing back, such as from a speakerphone.",
+    "consider": "Try it if callers on speakerphone cause the agent to 'interrupt itself'. Check the docs for current behavior."
+  },
+  {
+    "name": "preemptible",
+    "group": "Turn-taking & interruption",
+    "type": "bool",
+    "default": "false",
+    "description": "Default for whether a new text reply can cut off one that's still playing. This can also be set per text message.",
+    "consider": "Useful if your app sends a filler line ('let me check…') and then the real answer."
+  },
+  {
+    "name": "events",
+    "group": "Events & integrations",
+    "type": "text",
+    "default": "(none)",
+    "description": "Space-separated extra events: speaker-events, tokens-played, config-updated.",
+    "consider": "tokens-played tells you what was actually spoken. Use it to time 'end' precisely instead of this app's estimate timer.",
+    "placeholder": "tokens-played",
+    "appCode": true
+  },
+  {
+    "name": "debug",
+    "group": "Events & integrations",
+    "type": "enum",
+    "values": ["", "debugging"],
+    "default": "(off)",
+    "description": "Extra debugging messages over the WebSocket.",
+    "consider": "Turn on while developing and watch the Inspector for new message types."
+  },
+  {
+    "name": "intelligenceService",
+    "group": "Events & integrations",
+    "type": "text",
+    "default": "(none)",
+    "description": "Conversation Intelligence Service SID (GA...) or unique name. The transcript is sent there for post-call analytics.",
+    "consider": "Great for QA. Run operators such as 'did the agent confirm identity before sharing details?' across every call.",
+    "placeholder": "GAxxxxxxxx"
+  },
+  {
+    "name": "conversationConfiguration",
+    "group": "Events & integrations",
+    "type": "text",
+    "default": "(none)",
+    "description": "Conversation Orchestrator configuration ID. Links this voice session into an omnichannel conversation.",
+    "consider": "Use when the same nurse might continue over SMS or chat."
+  },
+  {
+    "name": "conversationId",
+    "group": "Events & integrations",
+    "type": "text",
+    "default": "(none)",
+    "description": "Attach to an existing Orchestrator conversation (skips grouping rules).",
+    "consider": "Use when you already know which conversation this call belongs to."
+  }
+]

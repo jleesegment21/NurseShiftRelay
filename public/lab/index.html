@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=1280" />
+  <title>ConversationRelay Lab · Nurse Shift Relay</title>
+  <link rel="icon" href="data:," />
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css" />
+  <link rel="stylesheet" href="/lab/css/lab.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-twilio">twilio</span>
+      <span class="brand-product">ConversationRelay Lab</span>
+      <span class="brand-tag" id="brand-tag">Nurse Shift Relay</span>
+    </div>
+    <div class="status-pills" id="status-pills"></div>
+  </header>
+
+  <main class="stage">
+    <section class="left-pane" aria-label="The call">
+      <div id="diagram" class="diagram"></div>
+      <div id="call-panel" class="card"></div>
+      <div id="call-list" class="call-list"></div>
+      <div id="metrics" class="metrics"></div>
+      <div id="transcript" class="transcript"></div>
+    </section>
+
+    <section class="right-pane" aria-label="What's being called">
+      <nav class="tabs" id="tabs">
+        <button data-tab="lessons" class="active">📘 Lessons</button>
+        <button data-tab="inspector">🔍 Inspector</button>
+        <button data-tab="params">🎛 Parameters</button>
+        <button data-tab="campaign">📋 Campaign</button>
+      </nav>
+      <div class="tab-body active" id="tab-lessons"></div>
+      <div class="tab-body" id="tab-inspector"></div>
+      <div class="tab-body" id="tab-params"></div>
+      <div class="tab-body" id="tab-campaign"></div>
+    </section>
+  </main>
+
+  <div id="toast" class="toast"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-core.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-markup.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-clike.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-javascript.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-bash.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-json.min.js"></script>
+  <script type="module" src="/lab/js/app.js"></script>
+</body>
+</html>

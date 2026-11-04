@@ -1,0 +1,52 @@
+[
+  {
+    "id": "N001",
+    "firstName": "Sarah",
+    "lastName": "Johnson",
+    "phone": "+15555550101",
+    "credentials": ["RN"],
+    "units": ["ICU", "Step-Down"],
+    "hoursThisWeek": 24,
+    "maxHoursPerWeek": 48
+  },
+  {
+    "id": "N002",
+    "firstName": "Marcus",
+    "lastName": "Lee",
+    "phone": "+15555550102",
+    "credentials": ["RN"],
+    "units": ["ICU"],
+    "hoursThisWeek": 12,
+    "maxHoursPerWeek": 48
+  },
+  {
+    "id": "N003",
+    "firstName": "Priya",
+    "lastName": "Patel",
+    "phone": "+15555550103",
+    "credentials": ["RN"],
+    "units": ["Med-Surg", "ICU"],
+    "hoursThisWeek": 36,
+    "maxHoursPerWeek": 48
+  },
+  {
+    "id": "N004",
+    "firstName": "Daniel",
+    "lastName": "Garcia",
+    "phone": "+15555550104",
+    "credentials": ["LPN"],
+    "units": ["Med-Surg"],
+    "hoursThisWeek": 16,
+    "maxHoursPerWeek": 40
+  },
+  {
+    "id": "N005",
+    "firstName": "Emily",
+    "lastName": "Chen",
+    "phone": "+15555550105",
+    "credentials": ["RN"],
+    "units": ["Emergency", "Med-Surg"],
+    "hoursThisWeek": 0,
+    "maxHoursPerWeek": 36
+  }
+]
